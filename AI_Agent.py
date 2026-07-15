@@ -35,7 +35,38 @@ class AI_Agent:
         # self.save_v()
 
     def Value_Iteration(self):
-        pass
+        if len(self.V) == 0:
+            self.Init_Value_Table()
+
+        goal_key = tuple(self.env.goal.board.flatten())
+        self.V[goal_key] = 0
+
+        accuracy = 1e-4
+        while True:
+            delta = 0
+            for key in list(self.V.keys()):
+                if key == goal_key:
+                    continue
+
+                state = self.key_to_state(key)
+                best_value = float('-inf')
+                for action in self.env.get_actions(state):
+                    next_state, reward = self.env(state, action)
+                    next_key = tuple(next_state.board.flatten())
+                    value = reward + gamma * self.V[next_key]
+                    if value > best_value:
+                        best_value = value
+
+                if best_value == float('-inf'):
+                    best_value = 0
+
+                delta = max(delta, abs(self.V[key] - best_value))
+                self.V[key] = best_value
+
+            if delta < accuracy:
+                break
+
+        return self.V
     
     def save_v (self):
         torch.save(self.V, PATH)
@@ -45,7 +76,7 @@ class AI_Agent:
     
     def get_V(self, state: State):
         key = tuple(state.board.flatten())
-        return self.V[key]
+        return self.V.get(key, 0)
     
     def set_V(self,state: State, value):
         arr = state.board.flatten()
