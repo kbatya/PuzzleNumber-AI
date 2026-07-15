@@ -1,13 +1,13 @@
 """Experiments for the PuzzleNumber-AI project book (Value Iteration on the 8-puzzle).
 Pure-Python model (tuples) + matplotlib. Mirrors AI_Agent.Value_Iteration (Bellman
 optimality, gamma-discounted, reward=1 at goal). Outputs 3 PNGs + printed numbers."""
-import random, collections, math
+import os, random, collections, math
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 random.seed(42)
-OUT = r"C:/Users/plane/AppData/Local/Temp/claude/C--Users-plane-OneDrive-Documents-marvad-371/8ddba47e-c178-4619-aeee-81128fea0f2b/scratchpad"
+OUT = os.path.dirname(os.path.abspath(__file__))   # save graphs next to this script
 GOAL = tuple(range(9))          # (0,1,2,3,4,5,6,7,8), 0 = blank
 
 def neighbors(s):
