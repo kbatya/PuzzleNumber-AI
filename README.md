@@ -139,18 +139,24 @@ python run_experiments.py
 ### 1. Convergence of Value Iteration
 ![Convergence](experiments/graph1_convergence.png)
 
-`Δ` (the maximum change per sweep, log scale) starts at `1.0` and decreases
-geometrically as the goal value propagates one "ring" of states outward per sweep.
-After **32 sweeps** every reachable state (diameter = **31 moves**) has its final
-value and `Δ` drops to `0`.
+`Δ` (the maximum change per sweep, log scale) starts at `1.0` and falls
+geometrically as the goal value propagates outward. Running the **production
+algorithm** (in-place / Gauss-Seidel sweeps over all **362,880** states, γ = 0.95)
+it reaches `0` after **17 sweeps** — fewer than a synchronous (Jacobi) update, because
+in-place updates reuse values computed earlier in the same sweep. Of the 362,880
+arrangements, **181,440** are solvable (reachable from the goal, receive positive
+values); the other 181,440 are unsolvable and stay at 0.
 
 ### 2. Effect of the discount factor γ
 ![Gamma effect](experiments/graph2_gamma.png)
 
-Across `γ ∈ {0.5, 0.9, 0.95, 0.99}` the **average solution length is identical
-(~22 steps) and optimal** — the greedy policy depends only on the *ordering* of the
-values, which discounting preserves. γ only changes the numeric dynamic range
-(right panel): `γ^30` collapses from ~0.21 at γ = 0.95 to ~9×10⁻¹⁰ at γ = 0.5.
+Running the **real θ = 1e-4 iteration** for each γ and measuring how many of 1000
+random solvable states the greedy policy actually solves: for `γ ∈ {0.9, 0.95, 0.99}`
+it converges in **17 sweeps** and solves **100%** optimally (~22 steps). For `γ = 0.5`
+it stops after only **9 sweeps** — before the values reach the distant states — and
+solves only **~30%** (the other 70% fail, because those states keep value 0 and the
+greedy policy has no gradient). So `γ` must be large enough for Value Iteration to
+converge *before* the fixed threshold stops it; `γ = 0.95` satisfies this comfortably.
 
 ### 3. Distribution of solution lengths & shuffle depth
 ![Distribution](experiments/graph3_distribution.png)
